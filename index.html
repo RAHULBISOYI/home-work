@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odia Daily Translation Form Website</title>
+  <style>
+    :root {
+      --primary-color: #4a6fa5;
+      --secondary-color: #166088;
+      --success-color: #2e7d32;
+      --danger-color: #c62828;
+      --background-color: #f4f6f9;
+      --card-color: #ffffff;
+      --text-color: #333333;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .nav-btn {
+      background-color: #e2e8f0;
+      color: #333;
+      font-weight: 600;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn.active {
+      background-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+
+    .section-card {
+      background: var(--card-color);
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--primary-color);
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 10px;
+    }
+
+    .password-box {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      background: #fdfdfd;
+      border: 1px solid #e2e8f0;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .input-group h4 {
+      margin: 0 0 10px 0;
+      color: #555;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"], input[type="password"], textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cccccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+    }
+
+    .btn-success:hover {
+      background-color: #1b5e20;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+    }
+
+    .button-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .question-box {
+      background: #f9fbfd;
+      border-left: 4px solid var(--primary-color);
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .question-box h3 {
+      margin: 0 0 10px 0;
+      color: var(--secondary-color);
+    }
+
+    .result-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      box-shadow: inset 3px 0 0 var(--success-color);
+    }
+
+    .result-card p {
+      margin: 8px 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Odia Daily Translation Portal</h1>
+
+  <div class="nav-tabs">
+    <button id="navUpload" class="nav-btn active" onclick="switchTab('upload')">Go to Upload Section</button>
+    <button id="navFill" class="nav-btn" onclick="switchTab('fill')">Go to Homework Section</button>
+  </div>
+
+  <div id="lockScreenPanel" class="section-card hidden">
+    <h2>🔒 Upload Section Locked</h2>
+    <p>This section is password protected by the teacher/creator. Enter password to manage questions:</p>
+    <div style="margin-bottom: 15px;">
+      <input type="password" id="unlockPasswordInput" placeholder="Enter security password...">
+    </div>
+    <button type="button" class="btn-success" onclick="verifyAndUnlock()">Unlock Section</button>
+  </div>
+
+  <div id="uploadSectionPanel" class="section-card">
+    <h2>Upload Translation Questions</h2>
+    
+    <div class="password-box">
+      <label style="margin-top: 0;"><strong>Set Protection Password (Optional):</strong></label>
+      <input type="password" id="sectionLockPassword" placeholder="Set a password to lock this section later...">
+      <small style="color: #666; display: block; margin-top: 5px;">If you set a password, users cannot see or modify this raw setup board without it.</small>
+    </div>
+
+    <div id="dynamic-upload-fields">
+      </div>
+    <div class="button-actions">
+      <button type="button" onclick="addMoreFields()">+ Add More Row</button>
+      <button type="button" class="btn-success" onclick="saveUploadedData()">Save & Upload Questions</button>
+      <button type="button" id="lockManuallyBtn" class="btn-danger hidden" onclick="lockSectionImmediately()">Lock Section Now</button>
+    </div>
+  </div>
+
+  <div id="homeworkSectionPanel" class="section-card hidden">
+    <h2>Uploaded Questions Will Be Fill Here</h2>
+    <form id="homeworkForm" onsubmit="showAnswers(event)">
+      <div id="answerFormContainer">
+        <p style="color: #777;">No questions uploaded yet. Upload questions first!</p>
+      </div>
+      <div class="button-actions">
+        <button type="submit" id="submitHomeworkBtn" class="btn-success" style="display: none;">Do The Homework</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="resultsSectionPanel" class="section-card hidden">
+    <h2>Show All Answers</h2>
+    <div id="allAnswersOutput"></div>
+  </div>
+</div>
+
+<script>
+  let fieldCounter = 1;
+  let isLocked = false;
+
+  window.onload = function() {
+    // Start with 3 empty template rows
+    for(let i = 0; i < 3; i++) {
+      addMoreFields();
+    }
+
+    // Check if there's an existing password lock saved
+    const savedPassword = localStorage.getItem('uploadSecurityPassword');
+    if (savedPassword && savedPassword.trim() !== '') {
+      isLocked = true;
+      document.getElementById('sectionLockPassword').value = savedPassword;
+      document.getElementById('lockManuallyBtn').classList.remove('hidden');
+    }
+
+    loadQuestions();
+    
+    // Default configuration view adjustment
+    if(isLocked) {
+      showLockScreen();
+    }
+  };
+
+  // Switch views between Upload and Fill Homework panels
+  function switchTab(tabName) {
+    document.getElementById('navUpload').classList.remove('active');
+    document.getElementById('navFill').classList.remove('active');
+
+    if (tabName === 'upload') {
+      document.getElementById('navUpload').classList.add('active');
+      document.getElementById('homeworkSectionPanel').classList.add('hidden');
+      document.getElementById('resultsSectionPanel').classList.add('hidden');
+      
+      if (isLocked) {
+        showLockScreen();
+      } else {
+        document.getElementById('uploadSectionPanel').classList.remove('hidden');
+      }
+    } else if (tabName === 'fill') {
+      document.getElementById('navFill').classList.add('active');
+      document.getElementById('uploadSectionPanel').classList.add('hidden');
+      document.getElementById('lockScreenPanel').classList.add('hidden');
+      
+      document.getElementById('homeworkSectionPanel').classList.remove('hidden');
+      loadQuestions();
+    }
+  }
+
+  // Handle dynamic input row generation number-wise
+  function addMoreFields() {
+    const container = document.getElementById('dynamic-upload-fields');
+    
+    const group = document.createElement('div');
+    group.className = 'input-group';
+    group.innerHTML = `
+      <h4>Question Set #${fieldCounter}</h4>
+      <label>Question:</label>
+      <input type="text" class="question-input" placeholder="e.g., ସେ ମାଛ ଧରୁଛନ୍ତି |">
+      
+      <label>Correct Answer:</label>
+      <input type="text" class="answer-input" placeholder="e.g., He is fishing.">
+    `;
+    
+    container.appendChild(group);
+    fieldCounter++;
+  }
+
+  // Save changes to localStorage
+  function saveUploadedData() {
+    const questionInputs = document.querySelectorAll('.question-input');
+    const answerInputs = document.querySelectorAll('.answer-input');
+    const passwordInputValue = document.getElementById('sectionLockPassword').value;
+    let storedData = [];
+
+    for (let i = 0; i < questionInputs.length; i++) {
+      const question = questionInputs[i].value;
+      const answer = answerInputs[i].value;
+
+      if (question.trim() !== '' && answer.trim() !== '') {
+        storedData.push({
+          question: question,
+          answer: answer
+        });
+      }
+    }
+
+    if (storedData.length === 0) {
+      alert('Please fill out at least one Question and Answer pair.');
+      return;
+    }
+
+    // Save configuration parameters
+    localStorage.setItem('odiaSentences', JSON.stringify(storedData));
+    localStorage.setItem('uploadSecurityPassword', passwordInputValue);
+
+    if(passwordInputValue.trim() !== '') {
+      isLocked = true;
+      document.getElementById('lockManuallyBtn').classList.remove('hidden');
+    } else {
+      isLocked = false;
+      document.getElementById('lockManuallyBtn').classList.add('hidden');
+    }
+
+    alert('Questions saved successfully!');
+    switchTab('fill'); // Move user straight to the homework step automatically
+  }
+
+  // Security Locking functions
+  function showLockScreen() {
+    document.getElementById('uploadSectionPanel').classList.add('hidden');
+    document.getElementById('lockScreenPanel').classList.remove('hidden');
+  }
+
+  function verifyAndUnlock() {
+    const userInput = document.getElementById('unlockPasswordInput').value;
+    const correctPassword = localStorage.getItem('uploadSecurityPassword');
+
+    if (userInput === correctPassword) {
+      document.getElementById('lockScreenPanel').classList.add('hidden');
+      document.getElementById('uploadSectionPanel').classList.remove('hidden');
+      document.getElementById('unlockPasswordInput').value = ''; // clean input field
+    } else {
+      alert('Incorrect secret password! Access Denied.');
+    }
+  }
+
+  function lockSectionImmediately() {
+    isLocked = true;
+    showLockScreen();
+  }
+
+  // Load and populate questions into "Uploaded Questions Will Be Fill Here"
+  function loadQuestions() {
+    const answerForm = document.getElementById('answerFormContainer');
+    const submitBtn = document.getElementById('submitHomeworkBtn');
+    
+    answerForm.innerHTML = '';
+    const sentences = JSON.parse(localStorage.getItem('odiaSentences')) || [];
+
+    if (sentences.length === 0) {
+      answerForm.innerHTML = '<p style="color: #777;">No sentences uploaded yet. Switch to upload panel first.</p>';
+      submitBtn.style.display = 'none';
+      return;
+    }
+
+    sentences.forEach((item, index) => {
+      answerForm.innerHTML += `
+        <div class="question-box">
+          <h3>Question ${index + 1}</h3>
+          <p><strong>Translate:</strong> ${item.question}</p>
+          <div class="answer-box">
+            <textarea class="user-answer" placeholder="Fill your answer here..."></textarea>
+          </div>
+        </div>
+      `;
+    });
+
+    submitBtn.style.display = 'inline-block';
+  }
+
+  // Process output result metrics
+  function showAnswers(event) {
+    event.preventDefault();
+
+    const allAnswers = document.getElementById('allAnswersOutput');
+    const resultsSection = document.getElementById('resultsSectionPanel');
+    const userAnswers = document.querySelectorAll('.user-answer');
+    const sentences = JSON.parse(localStorage.getItem('odiaSentences')) || [];
+
+    allAnswers.innerHTML = '';
+
+    userAnswers.forEach((answer, index) => {
+      const correctData = sentences[index];
+
+      allAnswers.innerHTML += `
+        <div class="result-card">
+          <p><strong>Question ${index + 1}:</strong> ${correctData.question}</p>
+          <p style="color: var(--secondary-color);"><strong>Your Answer:</strong> ${answer.value ? answer.value : '<em>Left blank</em>'}</p>
+          <p style="color: var(--success-color);"><strong>Correct Answer:</strong> ${correctData.answer}</p>
+        </div>
+      `;
+    });
+
+    resultsSection.classList.remove('hidden');
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
