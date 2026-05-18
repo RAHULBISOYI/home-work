@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="or">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Odia Daily Translation Form Website</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <!-- Firebase -->
+  <title>Odia Daily Translation Portal</title>
+
   <script type="module">
-
     import { initializeApp }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -16,30 +15,33 @@
       collection,
       addDoc,
       getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // PASTE YOUR FIREBASE CONFIG HERE
+    // FIREBASE CONFIG
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyADLSNGiwCJsxrD8tPgAWcc_4Jjs9oxkJY",
+      authDomain: "odia-translation-portal.firebaseapp.com",
+      projectId: "odia-translation-portal",
+      storageBucket: "odia-translation-portal.firebasestorage.app",
+      messagingSenderId: "893758060843",
+      appId: "1:893758060843:web:8a85ce25bf47994070ed6e"
     };
 
+    // INITIALIZE FIREBASE
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.db = db;
-    window.collection = collection;
-    window.addDoc = addDoc;
-    window.getDocs = getDocs;
+    console.log("Firebase Connected Successfully");
 
+    // GLOBAL ACCESS
+    window.db = db;
+    window.firebaseCollection = collection;
+    window.firebaseAddDoc = addDoc;
+    window.firebaseGetDocs = getDocs;
   </script>
 
   <style>
-
     :root {
       --primary-color: #4a6fa5;
       --secondary-color: #166088;
@@ -50,121 +52,111 @@
       --text-color: #333333;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--background-color);
-      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      background: var(--background-color);
       margin: 0;
       padding: 20px;
+      color: var(--text-color);
     }
 
     .container {
-      max-width: 800px;
-      margin: 0 auto;
+      max-width: 900px;
+      margin: auto;
     }
 
     h1 {
       text-align: center;
       color: var(--secondary-color);
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
     .nav-tabs {
       display: flex;
-      gap: 15px;
       justify-content: center;
-      margin-bottom: 25px;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
     .nav-btn {
-      background-color: #e2e8f0;
-      color: #333;
-      font-weight: 600;
-      padding: 12px 25px;
+      padding: 12px 20px;
       border: none;
       border-radius: 6px;
+      background: #ddd;
       cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
     }
 
     .nav-btn.active {
-      background-color: var(--primary-color);
+      background: var(--primary-color);
       color: white;
     }
 
     .section-card {
-      background: var(--card-color);
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      margin-bottom: 25px;
-    }
-
-    h2 {
-      margin-top: 0;
-      color: var(--primary-color);
-    }
-
-    .password-box {
-      background: #fff8e1;
-      border: 1px solid #ffe082;
-      padding: 15px;
-      border-radius: 6px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
       margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
     .input-group {
-      background: #fdfdfd;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #ddd;
       padding: 15px;
-      border-radius: 6px;
       margin-bottom: 15px;
+      border-radius: 6px;
+      background: #fafafa;
     }
 
     label {
       display: block;
-      font-weight: 600;
       margin-top: 10px;
       margin-bottom: 5px;
+      font-weight: bold;
     }
 
-    input[type="text"],
-    input[type="password"],
+    input,
     textarea {
-
       width: 100%;
       padding: 10px;
-      border: 1px solid #cccccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
     }
 
     textarea {
+      min-height: 90px;
       resize: vertical;
-      min-height: 60px;
     }
 
     button {
-      background-color: var(--primary-color);
-      color: white;
+      padding: 12px 18px;
       border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
+      color: white;
+      background: var(--primary-color);
+      font-size: 15px;
     }
 
     .btn-success {
-      background-color: var(--success-color);
+      background: var(--success-color);
     }
 
     .btn-danger {
-      background-color: var(--danger-color);
+      background: var(--danger-color);
     }
 
     .button-actions {
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
       margin-top: 15px;
     }
 
@@ -173,20 +165,27 @@
       border-left: 4px solid var(--primary-color);
       padding: 15px;
       margin-bottom: 15px;
+      border-radius: 5px;
     }
 
     .result-card {
-      background: #fff;
       border: 1px solid #ddd;
       padding: 15px;
       margin-bottom: 15px;
-      border-radius: 6px;
+      border-radius: 5px;
+      background: #fff;
     }
 
     .hidden {
-      display: none !important;
+      display: none;
     }
 
+    .loading {
+      text-align: center;
+      color: var(--secondary-color);
+      font-weight: bold;
+      margin-top: 15px;
+    }
   </style>
 </head>
 
@@ -196,134 +195,66 @@
 
   <h1>Odia Daily Translation Portal</h1>
 
+  <!-- NAVIGATION -->
   <div class="nav-tabs">
     <button id="navUpload"
-    class="nav-btn active"
-    onclick="switchTab('upload')">
-
-      Go to Upload Section
-
+            class="nav-btn active"
+            onclick="switchTab('upload')">
+      Upload Questions
     </button>
 
     <button id="navFill"
-    class="nav-btn"
-    onclick="switchTab('fill')">
-
-      Go to Homework Section
-
+            class="nav-btn"
+            onclick="switchTab('fill')">
+      Homework Section
     </button>
   </div>
 
-  <!-- Lock Screen -->
-
-  <div id="lockScreenPanel"
-  class="section-card hidden">
-
-    <h2>Upload Section Locked</h2>
-
-    <input type="password"
-    id="unlockPasswordInput"
-    placeholder="Enter Password">
-
-    <br><br>
-
-    <button class="btn-success"
-    onclick="verifyAndUnlock()">
-
-      Unlock Section
-
-    </button>
-
-  </div>
-
-  <!-- Upload Section -->
-
-  <div id="uploadSectionPanel"
-  class="section-card">
+  <!-- UPLOAD SECTION -->
+  <div id="uploadSectionPanel" class="section-card">
 
     <h2>Upload Translation Questions</h2>
-
-    <div class="password-box">
-
-      <label>
-        Set Protection Password
-      </label>
-
-      <input type="password"
-      id="sectionLockPassword"
-      placeholder="Set Password">
-
-    </div>
 
     <div id="dynamic-upload-fields"></div>
 
     <div class="button-actions">
-
       <button onclick="addMoreFields()">
         + Add More Row
       </button>
 
       <button class="btn-success"
-      onclick="saveUploadedData()">
-
+              onclick="saveUploadedData()">
         Save & Upload Questions
-
       </button>
-
-      <button id="lockManuallyBtn"
-      class="btn-danger hidden"
-      onclick="lockSectionImmediately()">
-
-        Lock Section Now
-
-      </button>
-
     </div>
 
+    <div id="uploadStatus" class="loading"></div>
   </div>
 
-  <!-- Homework Section -->
-
+  <!-- HOMEWORK SECTION -->
   <div id="homeworkSectionPanel"
-  class="section-card hidden">
+       class="section-card hidden">
 
-    <h2>Uploaded Questions Will Be Fill Here</h2>
+    <h2>Homework Questions</h2>
 
-    <form id="homeworkForm"
-    onsubmit="showAnswers(event)">
+    <form onsubmit="showAnswers(event)">
+      <div id="answerFormContainer"></div>
 
-      <div id="answerFormContainer">
-
-        <p>No questions uploaded yet.</p>
-
-      </div>
-
-      <div class="button-actions">
-
-        <button type="submit"
-        id="submitHomeworkBtn"
-        class="btn-success"
-        style="display:none;">
-
-          Do The Homework
-
-        </button>
-
-      </div>
-
+      <button type="submit"
+              id="submitHomeworkBtn"
+              class="btn-success hidden">
+        Submit Homework
+      </button>
     </form>
-
   </div>
 
-  <!-- Result Section -->
-
+  <!-- RESULTS SECTION -->
   <div id="resultsSectionPanel"
-  class="section-card hidden">
+       class="section-card hidden">
 
-    <h2>Show All Answers</h2>
+    <h2>All Answers</h2>
 
     <div id="allAnswersOutput"></div>
-
   </div>
 
 </div>
@@ -331,104 +262,82 @@
 <script>
 
   let fieldCounter = 1;
-  let isLocked = false;
+  window.allQuestions = [];
 
+  // PAGE LOAD
   window.onload = function () {
 
-    for(let i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i++) {
       addMoreFields();
     }
 
-    const savedPassword =
-    localStorage.getItem('uploadSecurityPassword');
-
-    if(savedPassword && savedPassword.trim() !== '') {
-
-      isLocked = true;
-
-      document.getElementById(
-      'sectionLockPassword').value = savedPassword;
-
-      document.getElementById(
-      'lockManuallyBtn').classList.remove('hidden');
-    }
-
-    loadQuestions();
-
-    if(isLocked){
-      showLockScreen();
-    }
+    setTimeout(() => {
+      loadQuestions();
+    }, 1000);
   };
 
-  function switchTab(tabName){
+  // SWITCH TAB
+  function switchTab(tabName) {
 
-    document.getElementById(
-    'navUpload').classList.remove('active');
+    document.getElementById('navUpload')
+      .classList.remove('active');
 
-    document.getElementById(
-    'navFill').classList.remove('active');
+    document.getElementById('navFill')
+      .classList.remove('active');
 
-    if(tabName === 'upload'){
+    if (tabName === 'upload') {
 
-      document.getElementById(
-      'navUpload').classList.add('active');
+      document.getElementById('navUpload')
+        .classList.add('active');
 
-      document.getElementById(
-      'homeworkSectionPanel').classList.add('hidden');
+      document.getElementById('uploadSectionPanel')
+        .classList.remove('hidden');
 
-      document.getElementById(
-      'resultsSectionPanel').classList.add('hidden');
+      document.getElementById('homeworkSectionPanel')
+        .classList.add('hidden');
 
-      if(isLocked){
-        showLockScreen();
-      } else {
-        document.getElementById(
-        'uploadSectionPanel').classList.remove('hidden');
-      }
+      document.getElementById('resultsSectionPanel')
+        .classList.add('hidden');
 
     } else {
 
-      document.getElementById(
-      'navFill').classList.add('active');
+      document.getElementById('navFill')
+        .classList.add('active');
 
-      document.getElementById(
-      'uploadSectionPanel').classList.add('hidden');
+      document.getElementById('uploadSectionPanel')
+        .classList.add('hidden');
 
-      document.getElementById(
-      'lockScreenPanel').classList.add('hidden');
-
-      document.getElementById(
-      'homeworkSectionPanel').classList.remove('hidden');
+      document.getElementById('homeworkSectionPanel')
+        .classList.remove('hidden');
 
       loadQuestions();
     }
   }
 
-  function addMoreFields(){
+  // ADD QUESTION FIELD
+  function addMoreFields() {
 
     const container =
-    document.getElementById('dynamic-upload-fields');
+      document.getElementById('dynamic-upload-fields');
 
     const group = document.createElement('div');
 
     group.className = 'input-group';
 
     group.innerHTML = `
+      <h3>Question #${fieldCounter}</h3>
 
-      <h4>Question Set #${fieldCounter}</h4>
-
-      <label>Question:</label>
-
-      <input type="text"
-      class="question-input"
-      placeholder="Enter Question">
-
-      <label>Correct Answer:</label>
+      <label>Question</label>
 
       <input type="text"
-      class="answer-input"
-      placeholder="Enter Correct Answer">
+             class="question-input"
+             placeholder="Enter Odia Question">
 
+      <label>Correct Answer</label>
+
+      <input type="text"
+             class="answer-input"
+             placeholder="Enter Correct Answer">
     `;
 
     container.appendChild(group);
@@ -436,194 +345,208 @@
     fieldCounter++;
   }
 
-  async function saveUploadedData(){
+  // SAVE TO FIREBASE
+  async function saveUploadedData() {
 
-    const questionInputs =
-    document.querySelectorAll('.question-input');
+    const status =
+      document.getElementById('uploadStatus');
 
-    const answerInputs =
-    document.querySelectorAll('.answer-input');
+    try {
 
-    const passwordInputValue =
-    document.getElementById(
-    'sectionLockPassword').value;
+      status.innerHTML = "Uploading Questions...";
 
-    let uploaded = false;
+      const questionInputs =
+        document.querySelectorAll('.question-input');
 
-    for(let i = 0; i < questionInputs.length; i++){
+      const answerInputs =
+        document.querySelectorAll('.answer-input');
 
-      const question = questionInputs[i].value;
-      const answer = answerInputs[i].value;
+      let uploaded = false;
 
-      if(question.trim() !== '' &&
-      answer.trim() !== ''){
+      for (let i = 0; i < questionInputs.length; i++) {
 
-        await addDoc(
-          collection(db, 'odiaQuestions'),
-          {
-            question: question,
-            answer: answer
-          }
+        const question =
+          questionInputs[i].value.trim();
+
+        const answer =
+          answerInputs[i].value.trim();
+
+        if (question !== '' && answer !== '') {
+
+          await window.firebaseAddDoc(
+            window.firebaseCollection(
+              window.db,
+              'odiaQuestions'
+            ),
+            {
+              question: question,
+              answer: answer,
+              createdAt: new Date()
+            }
+          );
+
+          uploaded = true;
+        }
+      }
+
+      if (!uploaded) {
+
+        status.innerHTML = "";
+
+        alert(
+          'Please fill at least one question and answer'
         );
 
-        uploaded = true;
+        return;
       }
-    }
 
-    if(!uploaded){
+      alert('Questions Uploaded Successfully');
 
-      alert('Please fill at least one question');
+      status.innerHTML = "";
 
-      return;
-    }
-
-    localStorage.setItem(
-    'uploadSecurityPassword',
-    passwordInputValue);
-
-    alert('Questions uploaded successfully!');
-
-    switchTab('fill');
-  }
-
-  function showLockScreen(){
-
-    document.getElementById(
-    'uploadSectionPanel').classList.add('hidden');
-
-    document.getElementById(
-    'lockScreenPanel').classList.remove('hidden');
-  }
-
-  function verifyAndUnlock(){
-
-    const userInput =
-    document.getElementById(
-    'unlockPasswordInput').value;
-
-    const correctPassword =
-    localStorage.getItem(
-    'uploadSecurityPassword');
-
-    if(userInput === correctPassword){
-
+      // RESET FIELDS
       document.getElementById(
-      'lockScreenPanel').classList.add('hidden');
+        'dynamic-upload-fields'
+      ).innerHTML = '';
 
-      document.getElementById(
-      'uploadSectionPanel').classList.remove('hidden');
+      fieldCounter = 1;
 
-    } else {
+      for (let i = 0; i < 3; i++) {
+        addMoreFields();
+      }
 
-      alert('Incorrect Password');
+      loadQuestions();
 
+      switchTab('fill');
+
+    } catch (error) {
+
+      console.error(error);
+
+      status.innerHTML = "";
+
+      alert(
+        "Upload Failed: " + error.message
+      );
     }
   }
 
-  function lockSectionImmediately(){
-
-    isLocked = true;
-
-    showLockScreen();
-  }
-
-  async function loadQuestions(){
+  // LOAD QUESTIONS
+  async function loadQuestions() {
 
     const answerForm =
-    document.getElementById(
-    'answerFormContainer');
+      document.getElementById(
+        'answerFormContainer'
+      );
 
     const submitBtn =
-    document.getElementById(
-    'submitHomeworkBtn');
+      document.getElementById(
+        'submitHomeworkBtn'
+      );
 
-    answerForm.innerHTML = '';
+    answerForm.innerHTML =
+      '<p class="loading">Loading Questions...</p>';
 
-    const querySnapshot =
-    await getDocs(
-      collection(db, 'odiaQuestions')
-    );
+    try {
 
-    let sentences = [];
+      const querySnapshot =
+        await window.firebaseGetDocs(
+          window.firebaseCollection(
+            window.db,
+            'odiaQuestions'
+          )
+        );
 
-    querySnapshot.forEach((docItem)=>{
-      sentences.push(docItem.data());
-    });
+      let sentences = [];
 
-    window.allQuestions = sentences;
+      querySnapshot.forEach((docItem) => {
+        sentences.push(docItem.data());
+      });
 
-    if(sentences.length === 0){
+      window.allQuestions = sentences;
+
+      answerForm.innerHTML = '';
+
+      if (sentences.length === 0) {
+
+        answerForm.innerHTML =
+          '<p>No questions uploaded yet.</p>';
+
+        submitBtn.classList.add('hidden');
+
+        return;
+      }
+
+      sentences.forEach((item, index) => {
+
+        answerForm.innerHTML += `
+          <div class="question-box">
+
+            <h3>Question ${index + 1}</h3>
+
+            <p>
+              <strong>Translate:</strong>
+              ${item.question}
+            </p>
+
+            <textarea
+              class="user-answer"
+              placeholder="Write your answer here..."
+            ></textarea>
+
+          </div>
+        `;
+      });
+
+      submitBtn.classList.remove('hidden');
+
+    } catch (error) {
+
+      console.error(error);
 
       answerForm.innerHTML =
-      '<p>No questions uploaded yet.</p>';
-
-      submitBtn.style.display = 'none';
-
-      return;
+        '<p>Error loading questions.</p>';
     }
-
-    sentences.forEach((item,index)=>{
-
-      answerForm.innerHTML += `
-
-        <div class="question-box">
-
-          <h3>Question ${index + 1}</h3>
-
-          <p>
-            <strong>Translate:</strong>
-            ${item.question}
-          </p>
-
-          <textarea
-          class="user-answer"
-          placeholder="Fill your answer here...">
-          </textarea>
-
-        </div>
-
-      `;
-    });
-
-    submitBtn.style.display = 'inline-block';
   }
 
-  function showAnswers(event){
+  // SHOW ANSWERS
+  function showAnswers(event) {
 
     event.preventDefault();
 
     const allAnswers =
-    document.getElementById(
-    'allAnswersOutput');
+      document.getElementById(
+        'allAnswersOutput'
+      );
 
     const resultsSection =
-    document.getElementById(
-    'resultsSectionPanel');
+      document.getElementById(
+        'resultsSectionPanel'
+      );
 
     const userAnswers =
-    document.querySelectorAll('.user-answer');
+      document.querySelectorAll('.user-answer');
 
     const sentences =
-    window.allQuestions || [];
+      window.allQuestions || [];
 
     allAnswers.innerHTML = '';
 
-    userAnswers.forEach((answer,index)=>{
+    userAnswers.forEach((answer, index) => {
 
       const correctData = sentences[index];
 
       allAnswers.innerHTML += `
-
         <div class="result-card">
 
           <p>
-            <strong>Question ${index+1}:</strong>
+            <strong>Question ${index + 1}:</strong>
             ${correctData.question}
           </p>
 
           <p>
             <strong>Your Answer:</strong>
-            ${answer.value || 'Left blank'}
+            ${answer.value || 'Left Blank'}
           </p>
 
           <p style="color:green;">
@@ -632,14 +555,13 @@
           </p>
 
         </div>
-
       `;
     });
 
     resultsSection.classList.remove('hidden');
 
     resultsSection.scrollIntoView({
-      behavior:'smooth'
+      behavior: 'smooth'
     });
   }
 
