@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html lang="or">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odia Translation Portal</title>
 
-  <title>Odia Daily Translation Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tiro+Odia&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
+  <!-- FIREBASE -->
   <script type="module">
-    import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      getDocs
-    }
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    // FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyADLSNGiwCJsxrD8tPgAWcc_4Jjs9oxkJY",
       authDomain: "odia-translation-portal.firebaseapp.com",
@@ -28,544 +22,674 @@
       appId: "1:893758060843:web:8a85ce25bf47994070ed6e"
     };
 
-    // INITIALIZE FIREBASE
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    console.log("Firebase Connected Successfully");
-
-    // GLOBAL ACCESS
     window.db = db;
     window.firebaseCollection = collection;
     window.firebaseAddDoc = addDoc;
     window.firebaseGetDocs = getDocs;
+    window.firebaseDeleteDoc = deleteDoc;
+    window.firebaseDoc = doc;
+    window.firebaseOnSnapshot = onSnapshot;
+    window.firebaseQuery = query;
+    window.firebaseOrderBy = orderBy;
   </script>
 
   <style>
     :root {
-      --primary-color: #4a6fa5;
-      --secondary-color: #166088;
-      --success-color: #2e7d32;
-      --danger-color: #c62828;
-      --background-color: #f4f6f9;
-      --card-color: #ffffff;
-      --text-color: #333333;
+      --primary: #2c5f8a;
+      --primary-light: #4a85ba;
+      --accent: #e8a020;
+      --success: #2e7d32;
+      --danger: #c0392b;
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --text: #1a2636;
+      --muted: #6b7f96;
+      --border: #d4dde8;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: Arial, sans-serif;
-      background: var(--background-color);
-      margin: 0;
-      padding: 20px;
-      color: var(--text-color);
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
     }
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-    }
+    .container { max-width: 860px; margin: auto; }
 
-    h1 {
+    /* HEADER */
+    .header {
       text-align: center;
-      color: var(--secondary-color);
-      margin-bottom: 25px;
+      margin-bottom: 28px;
+      padding: 28px 20px;
+      background: linear-gradient(135deg, var(--primary) 0%, #1a3a5c 100%);
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(44,95,138,0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: 'ଓ';
+      position: absolute;
+      right: 20px; top: 10px;
+      font-size: 90px;
+      font-family: 'Tiro Odia', serif;
+      color: rgba(255,255,255,0.07);
+      line-height: 1;
+    }
+    .header h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 1.7rem;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+    .header p {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.88rem;
+      margin-top: 6px;
     }
 
+    /* LIVE BADGE */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.12);
+      color: #7dffb3;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: #7dffb3;
+      border-radius: 50%;
+      animation: pulse 1.4s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.5; transform:scale(1.3); }
+    }
+
+    /* TABS */
     .nav-tabs {
       display: flex;
-      justify-content: center;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .nav-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 6px;
-      background: #ddd;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-
-    .nav-btn.active {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .section-card {
-      background: white;
-      padding: 20px;
+      background: var(--card);
+      padding: 6px;
       border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 11px 16px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      background: transparent;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 10px rgba(44,95,138,0.35);
     }
 
+    /* CARDS */
+    .section-card {
+      background: var(--card);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 18px;
+    }
+    .section-card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--bg);
+    }
+
+    /* INPUT GROUPS */
     .input-group {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-      background: #fafafa;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      position: relative;
+      animation: slideIn 0.3s ease;
     }
-
+    @keyframes slideIn {
+      from { opacity:0; transform:translateY(-8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .input-group h3 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
     label {
       display: block;
       margin-top: 10px;
-      margin-bottom: 5px;
-      font-weight: bold;
+      margin-bottom: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text);
     }
-
-    input,
-    textarea {
+    input, textarea {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 15px;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      background: white;
+      transition: border-color 0.2s;
     }
-
-    textarea {
-      min-height: 90px;
-      resize: vertical;
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-light);
     }
+    textarea { min-height: 80px; resize: vertical; }
 
+    /* BUTTONS */
     button {
-      padding: 12px 18px;
+      padding: 11px 18px;
       border: none;
-      border-radius: 5px;
+      border-radius: 7px;
       cursor: pointer;
       color: white;
-      background: var(--primary-color);
-      font-size: 15px;
+      background: var(--primary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.18s;
     }
-
-    .btn-success {
-      background: var(--success-color);
+    button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    .btn-success { background: var(--success); }
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
     }
+    .button-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 
-    .btn-danger {
-      background: var(--danger-color);
-    }
-
-    .button-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 15px;
-    }
-
+    /* QUESTION BOX */
     .question-box {
-      background: #f9fbfd;
-      border-left: 4px solid var(--primary-color);
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 5px;
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      animation: slideIn 0.3s ease;
+      position: relative;
+      transition: all 0.4s ease;
+    }
+    .question-box.expiring {
+      border-left-color: var(--danger);
+      background: #fff5f5;
+    }
+    .question-box.fade-out {
+      opacity: 0;
+      transform: translateX(30px);
+      pointer-events: none;
+    }
+    .question-box h3 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .question-text {
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 0.97rem;
     }
 
+    /* TIMER BADGE */
+    .timer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .timer-badge.ok    { background: #e8f5e9; color: var(--success); }
+    .timer-badge.warn  { background: #fff3e0; color: #e65100; }
+    .timer-badge.crit  { background: #ffebee; color: var(--danger); animation: critBlink 0.8s infinite alternate; }
+    @keyframes critBlink { from { opacity:1; } to { opacity:0.55; } }
+
+    /* RESULT CARD */
     .result-card {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-      background: #fff;
+      border: 1px solid var(--border);
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 14px;
     }
+    .result-card p { margin-bottom: 6px; line-height: 1.5; }
+    .result-card .correct { color: var(--success); }
 
-    .hidden {
-      display: none;
+    /* STATUS BAR */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-radius: 6px;
     }
+    .status-dot { width:8px; height:8px; border-radius:50%; }
 
-    .loading {
+    /* EMPTY STATE */
+    .empty-state {
       text-align: center;
-      color: var(--secondary-color);
-      font-weight: bold;
-      margin-top: 15px;
+      padding: 40px 20px;
+      color: var(--muted);
     }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* NEW QUESTION TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--primary);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 4px 18px rgba(44,95,138,0.35);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .hidden { display: none; }
   </style>
 </head>
 
 <body>
-
 <div class="container">
 
-  <h1>Odia Daily Translation Portal</h1>
+  <div class="header">
+    <h1>Odia Translation Portal</h1>
+    <p>Upload questions & practice translations in real-time</p>
+    <div class="live-badge"><span class="live-dot"></span> LIVE SYNC</div>
+  </div>
 
-  <!-- NAVIGATION -->
+  <!-- TABS -->
   <div class="nav-tabs">
-    <button id="navUpload"
-            class="nav-btn active"
-            onclick="switchTab('upload')">
-      Upload Questions
-    </button>
-
-    <button id="navFill"
-            class="nav-btn"
-            onclick="switchTab('fill')">
-      Homework Section
-    </button>
+    <button id="navUpload" class="nav-btn active" onclick="switchTab('upload')">📤 Upload Questions</button>
+    <button id="navFill"   class="nav-btn"        onclick="switchTab('fill')">📝 Homework Section</button>
   </div>
 
   <!-- UPLOAD SECTION -->
   <div id="uploadSectionPanel" class="section-card">
-
     <h2>Upload Translation Questions</h2>
-
     <div id="dynamic-upload-fields"></div>
-
     <div class="button-actions">
-      <button onclick="addMoreFields()">
-        + Add More Row
-      </button>
-
-      <button class="btn-success"
-              onclick="saveUploadedData()">
-        Save & Upload Questions
-      </button>
+      <button onclick="addMoreFields()">+ Add More Row</button>
+      <button class="btn-success" onclick="saveUploadedData()">✓ Save & Upload Questions</button>
     </div>
-
-    <div id="uploadStatus" class="loading"></div>
   </div>
 
   <!-- HOMEWORK SECTION -->
-  <div id="homeworkSectionPanel"
-       class="section-card hidden">
-
+  <div id="homeworkSectionPanel" class="section-card hidden">
     <h2>Homework Questions</h2>
-
+    <div id="statusBar" class="status-bar hidden">
+      <span class="status-dot" style="background:#7dffb3"></span>
+      <span id="statusText">Listening for new questions…</span>
+    </div>
     <form onsubmit="showAnswers(event)">
       <div id="answerFormContainer"></div>
-
-      <button type="submit"
-              id="submitHomeworkBtn"
-              class="btn-success hidden">
-        Submit Homework
-      </button>
+      <button type="submit" id="submitHomeworkBtn" class="btn-success hidden">✓ Submit Homework</button>
     </form>
   </div>
 
   <!-- RESULTS SECTION -->
-  <div id="resultsSectionPanel"
-       class="section-card hidden">
-
+  <div id="resultsSectionPanel" class="section-card hidden">
     <h2>All Answers</h2>
-
     <div id="allAnswersOutput"></div>
+    <div class="button-actions" style="margin-top:12px">
+      <button class="btn-outline" onclick="switchTab('fill')">← Back to Homework</button>
+    </div>
   </div>
 
 </div>
 
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="toast">
+  <span id="toastIcon">🔔</span>
+  <span id="toastMsg">New questions available!</span>
+</div>
+
 <script>
 
+  // ─── STATE ────────────────────────────────────────────────────────────────
   let fieldCounter = 1;
   window.allQuestions = [];
+  let activeTimerIntervals = {};   // questionId → intervalId
+  let unsubscribeListener = null;  // Firestore real-time listener
+  let currentTab = 'upload';
 
-  // PAGE LOAD
-  window.onload = function () {
-
-    for (let i = 0; i < 3; i++) {
-      addMoreFields();
-    }
-
-    setTimeout(() => {
-      loadQuestions();
-    }, 1000);
+  // ─── ON LOAD ──────────────────────────────────────────────────────────────
+  window.onload = function(){
+    for(let i = 0; i < 3; i++) addMoreFields();
   };
 
-  // SWITCH TAB
-  function switchTab(tabName) {
+  // ─── TOAST ────────────────────────────────────────────────────────────────
+  function showToast(msg, icon = '🔔'){
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toastIcon').textContent = icon;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
 
-    document.getElementById('navUpload')
-      .classList.remove('active');
+  // ─── TAB SWITCH ───────────────────────────────────────────────────────────
+  function switchTab(tab){
+    currentTab = tab;
+    document.getElementById('navUpload').classList.toggle('active', tab === 'upload');
+    document.getElementById('navFill').classList.toggle('active',   tab === 'fill');
+    document.getElementById('uploadSectionPanel').classList.toggle('hidden', tab !== 'upload');
+    document.getElementById('homeworkSectionPanel').classList.toggle('hidden', tab !== 'fill');
+    document.getElementById('resultsSectionPanel').classList.add('hidden');
 
-    document.getElementById('navFill')
-      .classList.remove('active');
-
-    if (tabName === 'upload') {
-
-      document.getElementById('navUpload')
-        .classList.add('active');
-
-      document.getElementById('uploadSectionPanel')
-        .classList.remove('hidden');
-
-      document.getElementById('homeworkSectionPanel')
-        .classList.add('hidden');
-
-      document.getElementById('resultsSectionPanel')
-        .classList.add('hidden');
-
+    if(tab === 'fill'){
+      startRealtimeListener();
     } else {
-
-      document.getElementById('navFill')
-        .classList.add('active');
-
-      document.getElementById('uploadSectionPanel')
-        .classList.add('hidden');
-
-      document.getElementById('homeworkSectionPanel')
-        .classList.remove('hidden');
-
-      loadQuestions();
+      stopRealtimeListener();
     }
   }
 
-  // ADD QUESTION FIELD
-  function addMoreFields() {
-
-    const container =
-      document.getElementById('dynamic-upload-fields');
-
+  // ─── ADD UPLOAD FIELDS ────────────────────────────────────────────────────
+  function addMoreFields(){
+    const container = document.getElementById('dynamic-upload-fields');
     const group = document.createElement('div');
-
     group.className = 'input-group';
-
     group.innerHTML = `
       <h3>Question #${fieldCounter}</h3>
-
       <label>Question</label>
-
-      <input type="text"
-             class="question-input"
-             placeholder="Enter Odia Question">
-
+      <input type="text" class="question-input" placeholder="Enter question to translate…">
       <label>Correct Answer</label>
-
-      <input type="text"
-             class="answer-input"
-             placeholder="Enter Correct Answer">
+      <input type="text" class="answer-input" placeholder="Enter correct translation…">
     `;
-
     container.appendChild(group);
-
     fieldCounter++;
   }
 
-  // SAVE TO FIREBASE
-  async function saveUploadedData() {
-
-    const status =
-      document.getElementById('uploadStatus');
-
+  // ─── SAVE DATA ────────────────────────────────────────────────────────────
+  async function saveUploadedData(){
     try {
-
-      status.innerHTML = "Uploading Questions...";
-
-      const questionInputs =
-        document.querySelectorAll('.question-input');
-
-      const answerInputs =
-        document.querySelectorAll('.answer-input');
-
+      const questionInputs = document.querySelectorAll('.question-input');
+      const answerInputs   = document.querySelectorAll('.answer-input');
       let uploaded = false;
 
-      for (let i = 0; i < questionInputs.length; i++) {
-
-        const question =
-          questionInputs[i].value.trim();
-
-        const answer =
-          answerInputs[i].value.trim();
-
-        if (question !== '' && answer !== '') {
-
+      for(let i = 0; i < questionInputs.length; i++){
+        const question = questionInputs[i].value.trim();
+        const answer   = answerInputs[i].value.trim();
+        if(question && answer){
           await window.firebaseAddDoc(
-            window.firebaseCollection(
-              window.db,
-              'odiaQuestions'
-            ),
+            window.firebaseCollection(window.db, 'odiaQuestions'),
             {
-              question: question,
-              answer: answer,
+              question,
+              answer,
+              deleteAt:  new Date(Date.now() + 5 * 60 * 60 * 1000),  // 5 hours
               createdAt: new Date()
             }
           );
-
           uploaded = true;
         }
       }
 
-      if (!uploaded) {
+      if(!uploaded){ alert("Fill at least one question!"); return; }
 
-        status.innerHTML = "";
+      showToast("Questions uploaded! Switching to homework…", "✅");
+      setTimeout(() => switchTab('fill'), 800);
 
-        alert(
-          'Please fill at least one question and answer'
-        );
-
-        return;
-      }
-
-      alert('Questions Uploaded Successfully');
-
-      status.innerHTML = "";
-
-      // RESET FIELDS
-      document.getElementById(
-        'dynamic-upload-fields'
-      ).innerHTML = '';
-
-      fieldCounter = 1;
-
-      for (let i = 0; i < 3; i++) {
-        addMoreFields();
-      }
-
-      loadQuestions();
-
-      switchTab('fill');
-
-    } catch (error) {
-
-      console.error(error);
-
-      status.innerHTML = "";
-
-      alert(
-        "Upload Failed: " + error.message
-      );
+    } catch(err){
+      console.error(err);
+      alert("Upload failed: " + err.message);
     }
   }
 
-  // LOAD QUESTIONS
-  async function loadQuestions() {
+  // ─── REALTIME LISTENER ────────────────────────────────────────────────────
+  function startRealtimeListener(){
+    // Stop any existing listener first
+    stopRealtimeListener();
 
-    const answerForm =
-      document.getElementById(
-        'answerFormContainer'
-      );
+    const statusBar  = document.getElementById('statusBar');
+    const statusText = document.getElementById('statusText');
+    statusBar.classList.remove('hidden');
 
-    const submitBtn =
-      document.getElementById(
-        'submitHomeworkBtn'
-      );
+    const col = window.firebaseCollection(window.db, 'odiaQuestions');
 
-    answerForm.innerHTML =
-      '<p class="loading">Loading Questions...</p>';
+    unsubscribeListener = window.firebaseOnSnapshot(col, async (snapshot) => {
 
-    try {
+      const now  = new Date();
+      let valid  = [];
+      const deletions = [];
 
-      const querySnapshot =
-        await window.firebaseGetDocs(
-          window.firebaseCollection(
-            window.db,
-            'odiaQuestions'
-          )
-        );
+      for(const docItem of snapshot.docs){
+        const data       = docItem.data();
+        const deleteTime = new Date(data.deleteAt.seconds ? data.deleteAt.seconds * 1000 : data.deleteAt);
 
-      let sentences = [];
+        if(now > deleteTime){
+          // Queue for deletion from Firestore
+          deletions.push(
+            window.firebaseDeleteDoc(
+              window.firebaseDoc(window.db, 'odiaQuestions', docItem.id)
+            )
+          );
+        } else {
+          valid.push({ id: docItem.id, ...data,
+            _deleteAtMs: deleteTime.getTime() });
+        }
+      }
 
-      querySnapshot.forEach((docItem) => {
-        sentences.push(docItem.data());
-      });
+      // Delete expired docs from Firebase
+      if(deletions.length){
+        await Promise.all(deletions);
+        console.log(`Deleted ${deletions.length} expired question(s) from Firebase`);
+      }
 
-      window.allQuestions = sentences;
+      // Check if new questions were added (not just timer ticks)
+      const prevIds  = new Set((window.allQuestions || []).map(q => q.id));
+      const newCount = valid.filter(q => !prevIds.has(q.id)).length;
 
-      answerForm.innerHTML = '';
+      window.allQuestions = valid;
 
-      if (sentences.length === 0) {
+      renderHomeworkQuestions(valid);
 
-        answerForm.innerHTML =
-          '<p>No questions uploaded yet.</p>';
+      if(newCount > 0 && prevIds.size > 0){
+        showToast(`${newCount} new question(s) just appeared!`, '🔔');
+      }
 
-        submitBtn.classList.add('hidden');
+      statusText.textContent =
+        valid.length > 0
+          ? `${valid.length} active question(s) — auto-refreshing`
+          : 'Waiting for questions…';
+    });
+  }
 
+  function stopRealtimeListener(){
+    if(unsubscribeListener){
+      unsubscribeListener();
+      unsubscribeListener = null;
+    }
+    // Clear all countdown timers
+    Object.values(activeTimerIntervals).forEach(clearInterval);
+    activeTimerIntervals = {};
+  }
+
+  // ─── RENDER HOMEWORK QUESTIONS ────────────────────────────────────────────
+  function renderHomeworkQuestions(questions){
+    const form      = document.getElementById('answerFormContainer');
+    const submitBtn = document.getElementById('submitHomeworkBtn');
+
+    // Clear old countdown timers
+    Object.values(activeTimerIntervals).forEach(clearInterval);
+    activeTimerIntervals = {};
+
+    if(questions.length === 0){
+      form.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📭</div>
+          <p><strong>No questions available right now.</strong></p>
+          <p style="margin-top:6px;font-size:0.88rem">Ask your teacher to upload questions — they'll appear here automatically.</p>
+        </div>`;
+      submitBtn.classList.add('hidden');
+      return;
+    }
+
+    // Preserve existing answers before re-render
+    const savedAnswers = {};
+    document.querySelectorAll('.user-answer').forEach((ta, i) => {
+      if(window.allQuestions[i]) savedAnswers[window.allQuestions[i].id] = ta.value;
+    });
+
+    form.innerHTML = '';
+
+    questions.forEach((item, index) => {
+      const boxId    = `qbox-${item.id}`;
+      const badgeId  = `badge-${item.id}`;
+      const textaId  = `ta-${item.id}`;
+
+      const div = document.createElement('div');
+      div.className  = 'question-box';
+      div.id         = boxId;
+      div.dataset.id = item.id;
+
+      div.innerHTML = `
+        <h3>Question ${index + 1}</h3>
+        <span class="timer-badge ok" id="${badgeId}">⏱ calculating…</span>
+        <p class="question-text">Translate: <strong>${item.question}</strong></p>
+        <textarea class="user-answer" id="${textaId}" placeholder="Write your translation here…">${savedAnswers[item.id] || ''}</textarea>
+      `;
+
+      form.appendChild(div);
+
+      // Start live countdown for this question
+      startCountdown(item.id, item._deleteAtMs, boxId, badgeId);
+    });
+
+    submitBtn.classList.remove('hidden');
+  }
+
+  // ─── COUNTDOWN TIMER PER QUESTION ─────────────────────────────────────────
+  function startCountdown(id, deleteAtMs, boxId, badgeId){
+    function tick(){
+      const secsLeft = Math.floor((deleteAtMs - Date.now()) / 1000);
+      const badge    = document.getElementById(badgeId);
+      const box      = document.getElementById(boxId);
+
+      if(!badge || !box){
+        clearInterval(activeTimerIntervals[id]);
+        delete activeTimerIntervals[id];
         return;
       }
 
-      sentences.forEach((item, index) => {
+      if(secsLeft <= 0){
+        clearInterval(activeTimerIntervals[id]);
+        delete activeTimerIntervals[id];
 
-        answerForm.innerHTML += `
-          <div class="question-box">
+        // Animate the question out of the UI
+        box.classList.add('fade-out');
+        setTimeout(() => {
+          box.remove();
+          // Update window.allQuestions
+          window.allQuestions = window.allQuestions.filter(q => q.id !== id);
+          // Hide submit if no questions left
+          if(document.querySelectorAll('.question-box').length === 0){
+            document.getElementById('answerFormContainer').innerHTML = `
+              <div class="empty-state">
+                <div class="icon">⏰</div>
+                <p><strong>Time's up — all questions have expired.</strong></p>
+              </div>`;
+            document.getElementById('submitHomeworkBtn').classList.add('hidden');
+          }
+        }, 450);
+        return;
+      }
 
-            <h3>Question ${index + 1}</h3>
+      // Update badge colour & text
+      const mins = Math.floor(secsLeft / 60);
+      const secs = secsLeft % 60;
+      const label = secsLeft < 60
+        ? `${secs}s left`
+        : `${mins}m ${secs}s left`;
 
-            <p>
-              <strong>Translate:</strong>
-              ${item.question}
-            </p>
-
-            <textarea
-              class="user-answer"
-              placeholder="Write your answer here..."
-            ></textarea>
-
-          </div>
-        `;
-      });
-
-      submitBtn.classList.remove('hidden');
-
-    } catch (error) {
-
-      console.error(error);
-
-      answerForm.innerHTML =
-        '<p>Error loading questions.</p>';
+      badge.textContent = `⏱ ${label}`;
+      badge.className   = 'timer-badge ' + (secsLeft > 30 ? 'ok' : secsLeft > 10 ? 'warn' : 'crit');
+      if(secsLeft <= 10) box.classList.add('expiring');
     }
+
+    tick(); // run immediately
+    activeTimerIntervals[id] = setInterval(tick, 1000);
   }
 
-  // SHOW ANSWERS
-  function showAnswers(event) {
-
+  // ─── SUBMIT ANSWERS ───────────────────────────────────────────────────────
+  function showAnswers(event){
     event.preventDefault();
 
-    const allAnswers =
-      document.getElementById(
-        'allAnswersOutput'
-      );
-
-    const resultsSection =
-      document.getElementById(
-        'resultsSectionPanel'
-      );
-
-    const userAnswers =
-      document.querySelectorAll('.user-answer');
-
-    const sentences =
-      window.allQuestions || [];
+    const allAnswers     = document.getElementById('allAnswersOutput');
+    const resultsSection = document.getElementById('resultsSectionPanel');
+    const userAnswers    = document.querySelectorAll('.user-answer');
+    const questions      = window.allQuestions || [];
 
     allAnswers.innerHTML = '';
 
-    userAnswers.forEach((answer, index) => {
-
-      const correctData = sentences[index];
+    userAnswers.forEach((textarea, index) => {
+      const correctData = questions[index];
+      if(!correctData) return;
 
       allAnswers.innerHTML += `
         <div class="result-card">
-
-          <p>
-            <strong>Question ${index + 1}:</strong>
-            ${correctData.question}
-          </p>
-
-          <p>
-            <strong>Your Answer:</strong>
-            ${answer.value || 'Left Blank'}
-          </p>
-
-          <p style="color:green;">
-            <strong>Correct Answer:</strong>
-            ${correctData.answer}
-          </p>
-
-        </div>
-      `;
+          <p><strong>Question ${index + 1}:</strong> ${correctData.question}</p>
+          <p><strong>Your Answer:</strong> ${textarea.value || '<em>Left blank</em>'}</p>
+          <p class="correct"><strong>✓ Correct Answer:</strong> ${correctData.answer}</p>
+        </div>`;
     });
 
     resultsSection.classList.remove('hidden');
-
-    resultsSection.scrollIntoView({
-      behavior: 'smooth'
-    });
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
   }
 
 </script>
-
 </body>
 </html>
