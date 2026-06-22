@@ -285,6 +285,59 @@
     .timer-badge.crit  { background: #ffebee; color: var(--danger); animation: critBlink 0.8s infinite alternate; }
     @keyframes critBlink { from { opacity:1; } to { opacity:0.55; } }
 
+    /* ── SCORE BANNER ─────────────────────────────────────────────────────── */
+    .score-banner {
+      border-radius: 12px;
+      padding: 24px 20px;
+      margin-bottom: 22px;
+      text-align: center;
+      animation: scorePop 0.5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes scorePop {
+      from { opacity:0; transform:scale(0.85); }
+      to   { opacity:1; transform:scale(1); }
+    }
+    .score-banner.excellent { background: linear-gradient(135deg,#1b5e20,#2e7d32); color:#fff; }
+    .score-banner.good      { background: linear-gradient(135deg,#0d47a1,#1565c0); color:#fff; }
+    .score-banner.average   { background: linear-gradient(135deg,#e65100,#f57c00); color:#fff; }
+    .score-banner.poor      { background: linear-gradient(135deg,#b71c1c,#c62828); color:#fff; }
+
+    .score-banner .score-emoji { font-size: 2.8rem; line-height: 1; margin-bottom: 8px; }
+    .score-banner .score-fraction {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+    .score-banner .score-percent {
+      font-size: 1rem;
+      opacity: 0.85;
+      margin-bottom: 6px;
+    }
+    .score-banner .score-msg {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 8px;
+      opacity: 0.95;
+    }
+
+    /* progress bar inside banner */
+    .score-progress-track {
+      background: rgba(255,255,255,0.25);
+      border-radius: 99px;
+      height: 10px;
+      margin: 12px auto 0;
+      max-width: 320px;
+      overflow: hidden;
+    }
+    .score-progress-fill {
+      height: 100%;
+      background: rgba(255,255,255,0.85);
+      border-radius: 99px;
+      transition: width 1s ease;
+      width: 0%;
+    }
+
     /* RESULT CARD */
     .result-card {
       border: 1px solid var(--border);
@@ -295,6 +348,12 @@
     }
     .result-card p { margin-bottom: 6px; line-height: 1.5; }
     .result-card .correct { color: var(--success); }
+    .result-card .wrong   { color: var(--danger); }
+
+    /* correct / wrong border accent on result cards */
+    .result-card.is-correct { border-left: 4px solid var(--success); }
+    .result-card.is-wrong   { border-left: 4px solid var(--danger); }
+    .result-card.is-blank   { border-left: 4px solid var(--accent); }
 
     /* STATUS BAR */
     .status-bar {
@@ -452,7 +511,11 @@
 
   <!-- RESULTS SECTION -->
   <div id="resultsSectionPanel" class="section-card hidden">
-    <h2>All Answers</h2>
+    <h2>Your Results</h2>
+
+    <!-- SCORE BANNER injected here by JS -->
+    <div id="scoreBannerContainer"></div>
+
     <div id="allAnswersOutput"></div>
     <div class="button-actions" style="margin-top:12px">
       <button class="btn-outline" onclick="switchTab('fill')">← Back to Homework</button>
@@ -472,9 +535,9 @@
   // ─── STATE ────────────────────────────────────────────────────────────────
   let fieldCounter = 1;
   window.allQuestions = [];
-  let activeTimerIntervals = {};   // questionId → intervalId
-  let unsubscribeListener = null;  // Firestore real-time listener for questions
-  let unsubscribeNotesListener = null; // Firestore real-time listener for notes
+  let activeTimerIntervals = {};
+  let unsubscribeListener = null;
+  let unsubscribeNotesListener = null;
   let currentTab = 'upload';
 
   // ─── ON LOAD ──────────────────────────────────────────────────────────────
@@ -541,7 +604,7 @@
             {
               question,
               answer,
-              deleteAt:  new Date(Date.now() + 5 * 60 * 60 * 1000),  // 5 hours
+              deleteAt:  new Date(Date.now() + 5 * 60 * 60 * 1000),
               createdAt: new Date()
             }
           );
@@ -562,7 +625,6 @@
 
   // ─── REALTIME LISTENER (QUESTIONS) ────────────────────────────────────────
   function startRealtimeListener(){
-    // Stop any existing listener first
     stopRealtimeListener();
 
     const statusBar  = document.getElementById('statusBar');
@@ -582,7 +644,6 @@
         const deleteTime = new Date(data.deleteAt.seconds ? data.deleteAt.seconds * 1000 : data.deleteAt);
 
         if(now > deleteTime){
-          // Queue for deletion from Firestore
           deletions.push(
             window.firebaseDeleteDoc(
               window.firebaseDoc(window.db, 'odiaQuestions', docItem.id)
@@ -594,13 +655,10 @@
         }
       }
 
-      // Delete expired docs from Firebase
       if(deletions.length){
         await Promise.all(deletions);
-        console.log(`Deleted ${deletions.length} expired question(s) from Firebase`);
       }
 
-      // Check if new questions were added (not just timer ticks)
       const prevIds  = new Set((window.allQuestions || []).map(q => q.id));
       const newCount = valid.filter(q => !prevIds.has(q.id)).length;
 
@@ -624,7 +682,6 @@
       unsubscribeListener();
       unsubscribeListener = null;
     }
-    // Clear all countdown timers
     Object.values(activeTimerIntervals).forEach(clearInterval);
     activeTimerIntervals = {};
   }
@@ -634,7 +691,6 @@
     const form      = document.getElementById('answerFormContainer');
     const submitBtn = document.getElementById('submitHomeworkBtn');
 
-    // Clear old countdown timers
     Object.values(activeTimerIntervals).forEach(clearInterval);
     activeTimerIntervals = {};
 
@@ -649,7 +705,6 @@
       return;
     }
 
-    // Preserve existing answers before re-render
     const savedAnswers = {};
     document.querySelectorAll('.user-answer').forEach((ta, i) => {
       if(window.allQuestions[i]) savedAnswers[window.allQuestions[i].id] = ta.value;
@@ -675,8 +730,6 @@
       `;
 
       form.appendChild(div);
-
-      // Start live countdown for this question
       startCountdown(item.id, item._deleteAtMs, boxId, badgeId);
     });
 
@@ -700,13 +753,10 @@
         clearInterval(activeTimerIntervals[id]);
         delete activeTimerIntervals[id];
 
-        // Animate the question out of the UI
         box.classList.add('fade-out');
         setTimeout(() => {
           box.remove();
-          // Update window.allQuestions
           window.allQuestions = window.allQuestions.filter(q => q.id !== id);
-          // Hide submit if no questions left
           if(document.querySelectorAll('.question-box').length === 0){
             document.getElementById('answerFormContainer').innerHTML = `
               <div class="empty-state">
@@ -719,7 +769,6 @@
         return;
       }
 
-      // Update badge colour & text
       const hrs  = Math.floor(secsLeft / 3600);
       const mins = Math.floor((secsLeft % 3600) / 60);
       const secs = secsLeft % 60;
@@ -737,38 +786,107 @@
       if(secsLeft <= 300) box.classList.add('expiring');
     }
 
-    tick(); // run immediately
+    tick();
     activeTimerIntervals[id] = setInterval(tick, 1000);
   }
 
-  // ─── SUBMIT ANSWERS ───────────────────────────────────────────────────────
+  // ─── NORMALISE answers for comparison ─────────────────────────────────────
+  function normalise(str){
+    return str.trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  // ─── SUBMIT ANSWERS & SHOW SCORE ──────────────────────────────────────────
   function showAnswers(event){
     event.preventDefault();
 
     const allAnswers     = document.getElementById('allAnswersOutput');
+    const scoreBanner    = document.getElementById('scoreBannerContainer');
     const resultsSection = document.getElementById('resultsSectionPanel');
     const userAnswers    = document.querySelectorAll('.user-answer');
     const questions      = window.allQuestions || [];
 
-    allAnswers.innerHTML = '';
+    allAnswers.innerHTML  = '';
+    scoreBanner.innerHTML = '';
+
+    let correct = 0;
+    const total = userAnswers.length;
 
     userAnswers.forEach((textarea, index) => {
       const correctData = questions[index];
       if(!correctData) return;
 
+      const userVal      = textarea.value.trim();
+      const isBlank      = userVal === '';
+      const isCorrect    = !isBlank && normalise(userVal) === normalise(correctData.answer);
+
+      if(isCorrect) correct++;
+
+      let cardClass, answerLine;
+      if(isBlank){
+        cardClass   = 'is-blank';
+        answerLine  = `<p style="color:var(--accent)"><strong>Your Answer:</strong> <em>Left blank</em></p>`;
+      } else if(isCorrect){
+        cardClass   = 'is-correct';
+        answerLine  = `<p class="correct"><strong>Your Answer:</strong> ${escapeHtml(userVal)} ✓</p>`;
+      } else {
+        cardClass   = 'is-wrong';
+        answerLine  = `<p class="wrong"><strong>Your Answer:</strong> ${escapeHtml(userVal)} ✗</p>`;
+      }
+
       allAnswers.innerHTML += `
-        <div class="result-card">
-          <p><strong>Question ${index + 1}:</strong> ${correctData.question}</p>
-          <p><strong>Your Answer:</strong> ${textarea.value || '<em>Left blank</em>'}</p>
-          <p class="correct"><strong>✓ Correct Answer:</strong> ${correctData.answer}</p>
+        <div class="result-card ${cardClass}">
+          <p><strong>Question ${index + 1}:</strong> ${escapeHtml(correctData.question)}</p>
+          ${answerLine}
+          <p class="correct"><strong>✓ Correct Answer:</strong> ${escapeHtml(correctData.answer)}</p>
         </div>`;
+    });
+
+    // ── Build score banner ──────────────────────────────────────────────────
+    const pct     = total > 0 ? Math.round((correct / total) * 100) : 0;
+    let tier, emoji, msg;
+
+    if(pct === 100){
+      tier  = 'excellent';
+      emoji = '🏆';
+      msg   = 'Perfect score! Outstanding work!';
+    } else if(pct >= 70){
+      tier  = 'good';
+      emoji = '👍';
+      msg   = 'Great job! Keep it up!';
+    } else if(pct >= 40){
+      tier  = 'average';
+      emoji = '📖';
+      msg   = 'Good effort — review the wrong answers and try again!';
+    } else {
+      tier  = 'poor';
+      emoji = '💪';
+      msg   = 'Keep practising — you\'ll get there!';
+    }
+
+    scoreBanner.innerHTML = `
+      <div class="score-banner ${tier}" id="scoreBannerEl">
+        <div class="score-emoji">${emoji}</div>
+        <div class="score-fraction">${correct} / ${total}</div>
+        <div class="score-percent">${pct}% correct</div>
+        <div class="score-progress-track">
+          <div class="score-progress-fill" id="scoreBar"></div>
+        </div>
+        <div class="score-msg">${msg}</div>
+      </div>`;
+
+    // Animate progress bar after render
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const bar = document.getElementById('scoreBar');
+        if(bar) bar.style.width = pct + '%';
+      });
     });
 
     resultsSection.classList.remove('hidden');
     resultsSection.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // ─── NOTES: helper to escape user text before inserting as HTML ──────────
+  // ─── NOTES: helper ────────────────────────────────────────────────────────
   function escapeHtml(str){
     const div = document.createElement('div');
     div.textContent = str;
@@ -822,7 +940,7 @@
     }
   }
 
-  // ─── NOTES: REALTIME LISTENER (shared across all users) ──────────────────
+  // ─── NOTES: REALTIME LISTENER ─────────────────────────────────────────────
   function startNotesListener(){
     stopNotesListener();
 
@@ -842,7 +960,7 @@
     }
   }
 
-  // ─── NOTES: RENDER ─────────────────────────────────────────────────────────
+  // ─── NOTES: RENDER ────────────────────────────────────────────────────────
   function renderNotes(notes){
     const container = document.getElementById('notesListContainer');
 
